@@ -51,7 +51,7 @@ export const useFeatureFlags = create<FeatureFlagsState>()(
                 set((state) => ({
                     features: state.features.map((f) => ({
                         ...f,
-                        enabled: f.defaultValue,
+                        enabled: f.defaultValue ?? false,
                     })),
                 })),
         }),

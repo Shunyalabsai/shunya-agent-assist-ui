@@ -11,9 +11,10 @@ export { useKnowledge } from './use-knowledge';
 export { useOnboarding } from './use-onboarding';
 
 // Other Stores
-export { useAuth } from './auth.store';
+// Other Stores
+export { useAuthStore as useAuth } from './auth.store';
 export { useFeatureFlagsStore } from './feature-flags.store';
-export { useLiveCall } from './live-call.store';
-export { useLiveMonitoring } from './live-monitoring.store';
-export { useTenant } from './tenant.store';
-export { useUI } from './ui.store';
+export { useLiveCallStore as useLiveCall } from './live-call.store';
+export { useLiveMonitoringStore as useLiveMonitoring } from './live-monitoring.store';
+export { useTenantStore as useTenant } from './tenant.store';
+export { useUIStore as useUI } from './ui.store';

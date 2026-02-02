@@ -43,14 +43,14 @@ export const useKnowledge = create<KnowledgeState>()(
             getDocumentsByCategory: (category) =>
                 get().documents.filter((d) => d.category === category),
             getDocumentsByTag: (tag) =>
-                get().documents.filter((d) => d.tags.includes(tag)),
+                get().documents.filter((d) => d.tags?.includes(tag) ?? false),
             searchDocuments: (query) => {
                 const lowerQuery = query.toLowerCase();
                 return get().documents.filter(
                     (d) =>
                         d.title.toLowerCase().includes(lowerQuery) ||
-                        d.content.toLowerCase().includes(lowerQuery) ||
-                        d.tags.some((t) => t.toLowerCase().includes(lowerQuery))
+                        (d.content?.toLowerCase().includes(lowerQuery) ?? false) ||
+                        (d.tags?.some((t) => t.toLowerCase().includes(lowerQuery)) ?? false)
                 );
             },
         }),
