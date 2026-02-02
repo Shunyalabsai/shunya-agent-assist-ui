@@ -8,11 +8,7 @@ export default function OnboardingPage() {
       <ConfigHeader
         title="Organization Setup"
         description="Configure your organization settings and complete the onboarding process"
-        actions={
-          <Button variant="outline" size="sm">
-            View Guide
-          </Button>
-        }
+
       />
 
       <OrgSetupForm />

@@ -14,6 +14,8 @@ export interface FeatureToggleMatrixProps {
   versions?: Version[];
   auditEntries?: AuditTrailEntry[];
   onToggle?: (featureId: string, enabled: boolean) => void;
+  onSave?: () => void;
+  isProcessing?: boolean;
 }
 
 export function FeatureToggleMatrix({
@@ -21,6 +23,8 @@ export function FeatureToggleMatrix({
   versions = [],
   auditEntries = [],
   onToggle,
+  onSave,
+  isProcessing = false,
 }: FeatureToggleMatrixProps) {
   const [localFeatures, setLocalFeatures] = useState<FeatureFlagConfig[]>(features);
 
@@ -37,8 +41,12 @@ export function FeatureToggleMatrix({
   };
 
   const handleSave = () => {
-    console.log('Save feature flags:', localFeatures);
-    // TODO: Implement save functionality
+    if (onSave) {
+      onSave();
+    } else {
+      console.log('Save feature flags:', localFeatures);
+      // TODO: Implement save functionality
+    }
   };
 
   const groupedFeatures = localFeatures.reduce(
@@ -73,9 +81,18 @@ export function FeatureToggleMatrix({
                   Enable or disable features for your organization
                 </CardDescription>
               </div>
-              <Button onClick={handleSave} size="sm">
-                <Save className="size-4" />
-                Save Changes
+              <Button onClick={handleSave} size="sm" disabled={isProcessing}>
+                {isProcessing ? (
+                  <div className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    Processing...
+                  </div>
+                ) : (
+                  <>
+                    <Save className="size-4" />
+                    Save Changes
+                  </>
+                )}
               </Button>
             </div>
           </CardHeader>

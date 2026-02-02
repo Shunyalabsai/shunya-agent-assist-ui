@@ -6,7 +6,7 @@ export interface FormFieldOption {
 }
 
 export interface FormFieldConfig {
-  id: keyof OrgSetupFormData;
+  id: string;
   label: string;
   type: 'text' | 'email' | 'tel' | 'select';
   required?: boolean;

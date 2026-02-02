@@ -57,8 +57,8 @@ export default function ChatPage() {
             <CardHeader>
               <CardTitle>Chat</CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col p-0">
-              <div className="flex-1 p-4">
+            <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+              <div className="flex-1 p-4 h-full  max-h-[calc(60dvh - 128px)] overflow-y-auto">
                 <ChatHistory messages={messages} />
               </div>
               <div className="border-t p-4">

@@ -1,11 +1,19 @@
+'use client';
+
+import { useState } from 'react';
 import { ConfigHeader } from '@/components/layout/ConfigHeader';
 import { WebhookConfigForm } from '@/features/configuration/components/WebhookConfigForm';
+import { AutomationList } from '@/features/automation/components/AutomationList';
+import { AutomationForm } from '@/features/automation/components/AutomationForm';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Plus } from 'lucide-react';
 import type { WebhookConfig } from '@/features/configuration/types';
 import type { Version } from '@/components/layout/VersionHistoryPanel';
 import type { AuditTrailEntry } from '@/components/layout/AuditTrailViewer';
+import type { Automation } from '@/features/automation/types';
 
-// Mock data for demonstration
+// Mock data for Webhooks
 const mockWebhooks: WebhookConfig[] = [
   {
     id: 'webhook1',
@@ -73,23 +81,143 @@ const mockAuditEntries: AuditTrailEntry[] = [
   },
 ];
 
+// Mock data for Automations
+const initialAutomations: Automation[] = [
+  {
+    id: 'auto1',
+    name: 'Post-Call Survey',
+    description: 'Send survey when call result is "Sale"',
+    active: true,
+    trigger: {
+      type: 'CALL_OUTCOME',
+      config: { value: 'sale', label: 'Sale Made' }
+    },
+    actions: [
+      {
+        id: 'act1',
+        type: 'WEBHOOK',
+        config: { webhookUrl: 'https://surveys.example.com/send' }
+      }
+    ],
+    lastRun: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+  },
+  {
+    id: 'auto2',
+    name: 'Compliance Alert Ticket',
+    description: 'Create Jira ticket on compliance violation',
+    active: true,
+    trigger: {
+      type: 'COMPLIANCE_EVENT',
+      config: { value: 'violation', label: 'Violation' }
+    },
+    actions: [
+      {
+        id: 'act2',
+        type: 'TICKET_CREATION',
+        config: { targetSystem: 'Jira' }
+      }
+    ],
+    createdAt: new Date().toISOString(),
+  }
+];
+
 export default function AutomationPage() {
+  const [activeTab, setActiveTab] = useState('automations');
+  const [automations, setAutomations] = useState<Automation[]>(initialAutomations);
+  const [isAutomationFormOpen, setIsAutomationFormOpen] = useState(false);
+  const [editingAutomation, setEditingAutomation] = useState<Automation | null>(null);
+
+  const handleCreateAutomation = () => {
+    setEditingAutomation(null);
+    setIsAutomationFormOpen(true);
+  };
+
+  const handleEditAutomation = (automation: Automation) => {
+    setEditingAutomation(automation);
+    setIsAutomationFormOpen(true);
+  };
+
+  const handleSaveAutomation = (automationData: any) => {
+    if (editingAutomation) {
+      setAutomations(prev => prev.map(a =>
+        a.id === editingAutomation.id ? { ...a, ...automationData } : a
+      ));
+    } else {
+      const newAutomation = {
+        ...automationData,
+        id: Math.random().toString(36).substr(2, 9),
+        createdAt: new Date().toISOString()
+      };
+      setAutomations(prev => [...prev, newAutomation]);
+    }
+  };
+
+  const handleDeleteAutomation = (id: string) => {
+    if (confirm('Are you sure you want to delete this automation?')) {
+      setAutomations(prev => prev.filter(a => a.id !== id));
+    }
+  };
+
+  const handleToggleStatus = (id: string, active: boolean) => {
+    setAutomations(prev => prev.map(a =>
+      a.id === id ? { ...a, active } : a
+    ));
+  };
+
   return (
     <div className="space-y-6">
       <ConfigHeader
         title="Automation & Webhooks"
-        description="Configure webhooks to receive real-time events and automate workflows"
+        description="Configure automated workflows and webhook integrations"
         actions={
-          <Button variant="outline" size="sm">
-            View Documentation
-          </Button>
+          activeTab === 'automations' ? (
+            <Button onClick={handleCreateAutomation} className="gap-2">
+              <Plus className="size-4" />
+              Create Automation
+            </Button>
+          ) : (
+            <Button variant="outline" size="sm">
+              View Documentation
+            </Button>
+          )
         }
       />
 
-      <WebhookConfigForm
-        webhooks={mockWebhooks}
-        versions={mockVersions}
-        auditEntries={mockAuditEntries}
+      <Tabs
+        defaultValue="automations"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-4"
+      >
+        <TabsList>
+          <TabsTrigger value="automations">Automations</TabsTrigger>
+          <TabsTrigger value="webhooks">Webhooks</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="automations" className="space-y-4">
+          <AutomationList
+            automations={automations}
+            onEdit={handleEditAutomation}
+            onDelete={handleDeleteAutomation}
+            onToggleStatus={handleToggleStatus}
+          />
+        </TabsContent>
+
+        <TabsContent value="webhooks">
+          <WebhookConfigForm
+            webhooks={mockWebhooks}
+            versions={mockVersions}
+            auditEntries={mockAuditEntries}
+          />
+        </TabsContent>
+      </Tabs>
+
+      <AutomationForm
+        open={isAutomationFormOpen}
+        onOpenChange={setIsAutomationFormOpen}
+        automation={editingAutomation}
+        onSave={handleSaveAutomation}
       />
     </div>
   );

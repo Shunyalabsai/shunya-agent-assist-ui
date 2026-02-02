@@ -20,7 +20,14 @@ const mockAuditLogs: AuditLog[] = [
     action: 'updated',
     resource: 'intent',
     timestamp: new Date(Date.now() - 3600000).toISOString(),
-    metadata: { intentId: 'intent1', changes: ['Updated intent name'] },
+    metadata: {
+      intentId: 'intent1',
+      title: 'Refund Policy',
+      changes: [
+        { field: 'name', old: 'Refun Policy', new: 'Refund Policy' },
+        { field: 'description', old: 'Policy for refunds', new: 'Updated policy for refunds handling' }
+      ]
+    },
   },
   {
     id: 'log3',
@@ -28,7 +35,13 @@ const mockAuditLogs: AuditLog[] = [
     action: 'deleted',
     resource: 'document',
     timestamp: new Date(Date.now() - 7200000).toISOString(),
-    metadata: { documentId: '3' },
+    metadata: {
+      documentId: '3',
+      title: 'Deprecated Guidelines',
+      changes: [
+        { field: 'status', old: 'active', new: 'deleted' }
+      ]
+    },
   },
   {
     id: 'log4',
@@ -36,8 +49,28 @@ const mockAuditLogs: AuditLog[] = [
     action: 'configured',
     resource: 'feature',
     timestamp: new Date(Date.now() - 10800000).toISOString(),
-    metadata: { featureId: 'live_sentiment', enabled: true },
+    metadata: {
+      featureId: 'live_sentiment',
+      title: 'Live Sentiment Analysis',
+      changes: [
+        { field: 'enabled', old: false, new: true }
+      ]
+    },
   },
+  {
+    id: 'log5',
+    userId: 'manager1',
+    action: 'updated',
+    resource: 'user',
+    timestamp: new Date(Date.now() - 14400000).toISOString(),
+    metadata: {
+      userId: 'agent55',
+      title: 'John Doe',
+      changes: [
+        { field: 'role', old: 'agent', new: 'manager' }
+      ]
+    }
+  }
 ];
 
 const mockAuditTrailEntries: AuditTrailEntry[] = [
@@ -57,7 +90,7 @@ const mockAuditTrailEntries: AuditTrailEntry[] = [
     userName: 'manager@example.com',
     timestamp: new Date(Date.now() - 3600000).toISOString(),
     details: 'Updated intent configuration',
-    metadata: { intentId: 'intent1', changes: ['Updated intent name'] },
+    metadata: { intentId: 'intent1', changes: [{ field: 'name', old: 'Refun Policy', new: 'Refund Policy' }] },
   },
 ];
 

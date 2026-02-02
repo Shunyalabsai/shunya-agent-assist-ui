@@ -24,6 +24,7 @@ import {
 import { cn } from "@/lib/utils/cn";
 import { useAuthStore } from "@/stores/auth.store";
 import { checkPermission } from "@/lib/permissions/rbac";
+import { ArrowLeft } from "lucide-react";
 
 export type AppSidebarType = "admin" | "agent" | "manager" | "all";
 
@@ -141,6 +142,9 @@ export function AppSidebar({ type, title }: AppSidebarProps) {
         </div>
       </SidebarHeader>
       <SidebarContent>
+        <SidebarMenu>
+          {renderMenuItem({ title: "Back", url: "/", icon: ArrowLeft }, pathname, isCollapsed)}
+        </SidebarMenu>
         {type === "all" ? (
           <>
             <SidebarGroup>

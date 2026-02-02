@@ -50,13 +50,13 @@ export function ChatHistory({ messages = [], className }: ChatHistoryProps) {
               </Avatar>
               <div
                 className={cn(
-                  'flex-1 space-y-1',
+                  'flex-1 space-y-1 w-max',
                   isUser ? 'items-end' : 'items-start'
                 )}
               >
                 <div
                   className={cn(
-                    'rounded-lg px-4 py-2 max-w-[80%]',
+                    'rounded-lg px-4 py-2 max-w-[80%] w-max',
                     isUser
                       ? 'bg-primary text-primary-foreground ml-auto'
                       : 'bg-muted'

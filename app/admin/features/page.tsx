@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { RotateCcw } from 'lucide-react';
 import { ConfigHeader } from '@/components/layout/ConfigHeader';
 import { FeatureToggleMatrix } from '@/features/configuration/components/FeatureToggleMatrix';
@@ -7,8 +10,9 @@ import type { Version } from '@/components/layout/VersionHistoryPanel';
 import type { AuditTrailEntry } from '@/components/layout/AuditTrailViewer';
 import { FEATURE_FLAGS } from '@/lib/feature-flags/flags';
 
+
 // Mock data for demonstration
-const mockFeatures: FeatureFlagConfig[] = [
+const initialFeatures: FeatureFlagConfig[] = [
   {
     id: 'feat1',
     key: FEATURE_FLAGS.LIVE_SENTIMENT,
@@ -54,6 +58,42 @@ const mockFeatures: FeatureFlagConfig[] = [
     enabled: false,
     defaultValue: false,
   },
+  {
+    id: 'feat6',
+    key: FEATURE_FLAGS.POST_CALL_TRANSCRIPTION,
+    name: 'Post-call Transcription',
+    description: 'Automated transcription after call completion',
+    category: 'analytics',
+    enabled: true,
+    defaultValue: true,
+  },
+  {
+    id: 'feat7',
+    key: FEATURE_FLAGS.LIVE_INTENT_DETECTION,
+    name: 'Live Intent Detection',
+    description: 'Real-time detection of customer intent',
+    category: 'real-time',
+    enabled: false,
+    defaultValue: false,
+  },
+  {
+    id: 'feat8',
+    key: FEATURE_FLAGS.COMPLIANCE_MONITORING,
+    name: 'Compliance Monitoring',
+    description: 'Automated compliance checks',
+    category: 'other',
+    enabled: true,
+    defaultValue: true,
+  },
+  {
+    id: 'feat9',
+    key: FEATURE_FLAGS.MANAGER_DASHBOARDS,
+    name: 'Manager Dashboards',
+    description: 'Specialized dashboards for managers',
+    category: 'analytics',
+    enabled: true,
+    defaultValue: true,
+  },
 ];
 
 const mockVersions: Version[] = [
@@ -89,11 +129,29 @@ const mockAuditEntries: AuditTrailEntry[] = [
 ];
 
 export default function FeaturesPage() {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [features, setFeatures] = useState(initialFeatures);
+
+  const handleToggle = (featureId: string, enabled: boolean) => {
+    setFeatures((prev) =>
+      prev.map((f) => (f.id === featureId ? { ...f, enabled } : f))
+    );
+  };
+
+  const handleSave = async () => {
+    setIsProcessing(true);
+    // Simulate backend validation
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setIsProcessing(false);
+    // In a real app, show a toast here
+    console.log('Changes saved!', features);
+  };
+
   return (
     <div className="space-y-6">
       <ConfigHeader
         title="Feature Enablement"
-        description="Enable or disable features for your organization. Changes take effect immediately."
+        description="Enable or disable features for your organization. Changes take effect after ingest/validation cycle."
         actions={
           <Button variant="outline" size="sm">
             <RotateCcw className="size-4" />
@@ -103,9 +161,12 @@ export default function FeaturesPage() {
       />
 
       <FeatureToggleMatrix
-        features={mockFeatures}
+        features={features}
         versions={mockVersions}
         auditEntries={mockAuditEntries}
+        onToggle={handleToggle}
+        onSave={handleSave}
+        isProcessing={isProcessing}
       />
     </div>
   );

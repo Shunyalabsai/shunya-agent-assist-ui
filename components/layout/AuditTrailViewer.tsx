@@ -4,7 +4,16 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils/cn';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+
 
 export interface AuditTrailEntry {
   id: string;
@@ -52,6 +61,15 @@ export function AuditTrailViewer({
     setExpandedEntries(newExpanded);
   };
 
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   if (entries.length === 0) {
     return (
       <Card className={className}>
@@ -74,18 +92,22 @@ export function AuditTrailViewer({
           <CardTitle>Audit Trail</CardTitle>
           {uniqueActions.length > 1 && (
             <div className="flex items-center gap-2">
-              <select
+              <Select
                 value={actionFilter}
-                onChange={(e) => setActionFilter(e.target.value)}
-                className="text-sm border border-border rounded-md px-2 py-1 bg-background"
+                onValueChange={setActionFilter}
               >
-                <option value="all">All Actions</option>
-                {uniqueActions.map((action) => (
-                  <option key={action} value={action}>
-                    {action}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Filter by action" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Actions</SelectItem>
+                  {uniqueActions.map((action) => (
+                    <SelectItem key={action} value={action}>
+                      {action}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           )}
         </div>
@@ -104,10 +126,18 @@ export function AuditTrailViewer({
                   <div className="flex items-start justify-between">
                     <div className="space-y-1 flex-1">
                       <div className="flex items-center gap-2">
-                        <span className="font-medium text-sm">{entry.action}</span>
-                        <span className="text-xs text-muted-foreground">
-                          by {entry.userName || entry.userId}
-                        </span>
+                        <Badge variant="outline">{entry.action}</Badge>
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <span>by</span>
+                          <div className="flex items-center gap-1">
+                            <Avatar className="h-4 w-4">
+                              <AvatarFallback className="text-[10px]">
+                                {getInitials(entry.userName || entry.userId)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span>{entry.userName || entry.userId}</span>
+                          </div>
+                        </div>
                       </div>
                       <p className="text-xs text-muted-foreground">
                         {new Date(entry.timestamp).toLocaleString('en-US', {

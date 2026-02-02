@@ -7,7 +7,7 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const sidebarType: AppSidebarType = "all";
+  const sidebarType: AppSidebarType = "admin";
 
   return (
     <SidebarProvider>

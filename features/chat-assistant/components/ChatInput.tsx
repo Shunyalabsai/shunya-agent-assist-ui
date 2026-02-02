@@ -62,7 +62,7 @@ export function ChatInput({
         onClick={handleSend}
         disabled={!message.trim() || disabled || isLoading}
         size="icon"
-        className="h-auto"
+        className="h-12 aspect-square w-12 rounded-full mt-auto"
       >
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin" />

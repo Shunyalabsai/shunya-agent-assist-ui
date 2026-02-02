@@ -8,3 +8,5 @@ export * from "./components/NextBestActionCard";
 export * from "./components/ComplianceStatus";
 export * from "./components/UpsellPrompt";
 export * from "./components/AgentChatDock";
+export * from './components/IncomingCallOverlay';
+export * from './components/PostCallScreen';

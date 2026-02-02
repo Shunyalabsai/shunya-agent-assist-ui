@@ -1,9 +1,9 @@
+'use client';
+
 import { ConfigHeader } from '@/components/layout/ConfigHeader';
-import { IntentEditor } from '@/features/configuration/components/IntentEditor';
+import { IntentListTable } from '@/features/configuration/components/IntentListTable';
 import { Button } from '@/components/ui/button';
 import type { Intent } from '@/features/configuration/types';
-import type { Version } from '@/components/layout/VersionHistoryPanel';
-import type { AuditTrailEntry } from '@/components/layout/AuditTrailViewer';
 
 // Mock data for demonstration
 const mockIntents: Intent[] = [
@@ -36,63 +36,37 @@ const mockIntents: Intent[] = [
   },
 ];
 
-const mockVersions: Version[] = [
-  {
-    id: 'v1',
-    version: '1.0',
-    createdAt: new Date().toISOString(),
-    createdBy: 'admin@example.com',
-    changes: ['Initial intent configuration', 'Added 3 base intents'],
-    isCurrent: true,
-  },
-  {
-    id: 'v2',
-    version: '0.9',
-    createdAt: new Date(Date.now() - 86400000).toISOString(),
-    createdBy: 'admin@example.com',
-    changes: ['Draft version'],
-  },
-];
 
-const mockAuditEntries: AuditTrailEntry[] = [
-  {
-    id: 'audit1',
-    action: 'created',
-    userId: 'user1',
-    userName: 'admin@example.com',
-    timestamp: new Date().toISOString(),
-    details: 'Created intent: Customer Support Request',
-    metadata: { intentId: 'intent1', name: 'Customer Support Request' },
-  },
-  {
-    id: 'audit2',
-    action: 'updated',
-    userId: 'user1',
-    userName: 'admin@example.com',
-    timestamp: new Date(Date.now() - 3600000).toISOString(),
-    details: 'Updated intent: Product Inquiry',
-    metadata: { intentId: 'intent2', changes: ['Updated confidence threshold'] },
-  },
-];
 
 export default function IntentsPage() {
+  const handleImport = () => {
+    // TODO: Implement file upload/import logic
+    console.log('Import intents clicked');
+  };
+
+  const handleApproveAndActivate = () => {
+    // TODO: Implement approval logic
+    console.log('Approve & Activate clicked');
+  };
+
   return (
     <div className="space-y-6">
       <ConfigHeader
         title="Intent Configuration"
         description="Configure call intents and their detection parameters for better call routing and analysis"
         actions={
-          <Button variant="outline" size="sm">
-            Import Intents
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={handleImport}>
+              Import Intents
+            </Button>
+            <Button size="sm" onClick={handleApproveAndActivate}>
+              Approve & Activate
+            </Button>
+          </div>
         }
       />
 
-      <IntentEditor
-        intents={mockIntents}
-        versions={mockVersions}
-        auditEntries={mockAuditEntries}
-      />
+      <IntentListTable data={mockIntents} />
     </div>
   );
 }

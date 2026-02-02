@@ -7,7 +7,7 @@ export default function AgentLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const sidebarType: AppSidebarType = "all";
+  const sidebarType: AppSidebarType = "agent";
 
   return (
     <SidebarProvider>

@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { ConfigHeader } from '@/components/layout/ConfigHeader';
 import { KnowledgeManagement } from '@/features/knowledge/components/KnowledgeManagement';
 import { Button } from '@/components/ui/button';
@@ -13,6 +16,13 @@ const mockDocuments: KnowledgeArticle[] = [
     content: 'Standard operating procedures for customer service interactions...',
     category: 'SOP',
     tags: ['customer-service', 'procedures'],
+    type: 'pdf',
+    process: 'Customer Support',
+    queue: 'General Inquiries',
+    language: 'en',
+    version: '1.0',
+    status: 'Active',
+    updatedAt: new Date().toISOString(),
   },
   {
     id: '2',
@@ -20,6 +30,41 @@ const mockDocuments: KnowledgeArticle[] = [
     content: 'Comprehensive guide to our product offerings and features...',
     category: 'Knowledge Base',
     tags: ['products', 'features'],
+    type: 'doc',
+    process: 'Sales',
+    queue: 'Outbound Sales',
+    language: 'en',
+    version: '2.1',
+    status: 'Active',
+    updatedAt: new Date().toISOString(),
+  },
+  {
+    id: '3',
+    title: 'Refund Policy',
+    content: 'Detailed refund policy for all regions...',
+    category: 'SOP',
+    tags: ['refund', 'policy'],
+    type: 'pdf',
+    process: 'Customer Support',
+    queue: 'Premium Support',
+    language: 'es',
+    version: '1.0',
+    status: 'Archived',
+    updatedAt: new Date(Date.now() - 86400000 * 10).toISOString(),
+  },
+  {
+    id: '4',
+    title: 'Compliance Guidelines',
+    content: 'Regulatory compliance for financial products...',
+    category: 'Governance',
+    tags: ['compliance', 'legal'],
+    type: 'docx',
+    process: 'All',
+    queue: 'All',
+    language: 'en',
+    version: '3.0',
+    status: 'Processing',
+    updatedAt: new Date().toISOString(),
   },
 ];
 
@@ -63,14 +108,16 @@ const mockAuditEntries: AuditTrailEntry[] = [
 ];
 
 export default function KnowledgePage() {
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+
   return (
     <div className="space-y-6">
       <ConfigHeader
         title="Knowledge Management"
         description="Manage your knowledge base documents, SOPs, and version history"
         actions={
-          <Button variant="outline" size="sm">
-            Import Documents
+          <Button variant="default" onClick={() => setIsUploadModalOpen(true)}>
+            Upload Document
           </Button>
         }
       />
@@ -79,6 +126,8 @@ export default function KnowledgePage() {
         documents={mockDocuments}
         versions={mockVersions}
         auditEntries={mockAuditEntries}
+        isUploadModalOpen={isUploadModalOpen}
+        onUploadModalOpenChange={setIsUploadModalOpen}
       />
     </div>
   );

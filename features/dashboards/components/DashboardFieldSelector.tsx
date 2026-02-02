@@ -36,7 +36,7 @@ export function DashboardFieldSelector({
       newSelected.delete(widgetId);
     }
     setLocalSelected(newSelected);
-    
+
     if (onWidgetToggle) {
       onWidgetToggle(widgetId, enabled);
     } else {
@@ -105,11 +105,7 @@ export function DashboardFieldSelector({
                         return (
                           <div
                             key={widget.id}
-                            className={`flex items-start justify-between p-4 border rounded-lg transition-colors ${
-                              isSelected
-                                ? 'border-primary bg-primary/5'
-                                : 'border-border/50 hover:bg-muted/50'
-                            }`}
+                            className={`flex items-start justify-between p-4 border rounded-lg transition-colors border-border/50 hover:bg-muted/50`}
                           >
                             <div className="space-y-1 flex-1">
                               <div className="flex items-center gap-2">

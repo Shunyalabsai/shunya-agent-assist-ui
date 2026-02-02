@@ -51,131 +51,148 @@ import { mockUsers, UserWithRelations } from '../data/mock-users-data';
 // Based on my previous list_dir, dropdown-menu.tsx was not in components/ui.
 // I should check if I need to add it or use Select instead.
 
-export const columns: ColumnDef<UserWithRelations>[] = [
-    {
-        accessorKey: 'name',
-        header: ({ column }) => {
-            return (
-                <Button
-                    variant="ghost"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                >
-                    User
-                    <ArrowUpDown className="ml-2 h-4 w-4" />
-                </Button>
-            );
-        },
-        cell: ({ row }) => {
-            const user = row.original;
-            return (
-                <div className="flex items-center gap-3">
-                    <Avatar className="h-9 w-9">
-                        <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} alt={user.name} />
-                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                        <span className="font-medium">{user.name}</span>
-                        <span className="text-xs text-muted-foreground">{user.email}</span>
-                    </div>
-                </div>
-            );
-        },
-    },
-    {
-        accessorKey: 'role',
-        header: 'Role',
-        cell: ({ row }) => {
-            const role = row.getValue('role') as string;
-            return (
-                <Badge variant={role === 'admin' ? 'default' : role === 'manager' ? 'secondary' : 'outline'} className="capitalize">
-                    {role}
-                </Badge>
-            );
-        },
-        filterFn: (row, id, value) => {
-            if (!value || value.length === 0) return true;
-            return value.includes(row.getValue(id));
-        },
-    },
-    {
-        id: 'relationship',
-        header: 'Relationship / Team',
-        cell: ({ row }) => {
-            const user = row.original;
-            if (user.role === 'manager') {
+const createColumns = (
+    onDisable: (id: string) => void,
+    onReinvite: (id: string, email: string) => void
+): ColumnDef<UserWithRelations>[] => [
+        {
+            accessorKey: 'name',
+            header: ({ column }) => {
                 return (
-                    <div className="text-sm">
-                        <span className="font-medium text-primary">{user.teamSize}</span> Agents Managed
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                    >
+                        User
+                        <ArrowUpDown className="ml-2 h-4 w-4" />
+                    </Button>
+                );
+            },
+            cell: ({ row }) => {
+                const user = row.original;
+                return (
+                    <div className="flex items-center gap-3">
+                        <Avatar className="h-9 w-9">
+                            <AvatarImage src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.name}`} alt={user.name} />
+                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex flex-col">
+                            <span className="font-medium">{user.name}</span>
+                            <span className="text-xs text-muted-foreground">{user.email}</span>
+                        </div>
                     </div>
                 );
-            }
-            if (user.role === 'agent' && user.managerName) {
+            },
+        },
+        {
+            accessorKey: 'role',
+            header: 'Role',
+            cell: ({ row }) => {
+                const role = row.getValue('role') as string;
                 return (
-                    <div className="text-sm">
-                        Reports to <span className="font-medium">{user.managerName}</span>
-                    </div>
+                    <Badge variant={role === 'admin' ? 'default' : role === 'manager' ? 'secondary' : 'outline'} className="capitalize">
+                        {role}
+                    </Badge>
                 );
-            }
-            return <span className="text-muted-foreground text-sm">-</span>;
+            },
+            filterFn: (row, id, value) => {
+                if (!value || value.length === 0) return true;
+                return value.includes(row.getValue(id));
+            },
         },
-    },
-    {
-        accessorKey: 'status',
-        header: 'Status',
-        cell: ({ row }) => {
-            const status = row.getValue('status') as string;
-            const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-                active: "default",
-                inactive: "destructive",
-                pending: "outline",
-            };
+        {
+            id: 'relationship',
+            header: 'Relationship / Team',
+            cell: ({ row }) => {
+                const user = row.original;
+                if (user.role === 'manager') {
+                    return (
+                        <div className="text-sm">
+                            <span className="font-medium text-primary">{user.teamSize}</span> Agents Managed
+                        </div>
+                    );
+                }
+                if (user.role === 'agent' && user.managerName) {
+                    return (
+                        <div className="text-sm">
+                            Reports to <span className="font-medium">{user.managerName}</span>
+                        </div>
+                    );
+                }
+                return <span className="text-muted-foreground text-sm">-</span>;
+            },
+        },
+        {
+            accessorKey: 'status',
+            header: 'Status',
+            cell: ({ row }) => {
+                const status = row.getValue('status') as string;
+                const variants: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
+                    active: "default",
+                    inactive: "destructive",
+                    pending: "outline",
+                };
 
-            return (
-                <Badge variant={variants[status] || "outline"} className="capitalize">
-                    {status}
-                </Badge>
-            );
+                return (
+                    <Badge variant={variants[status] || "outline"} className="capitalize">
+                        {status}
+                    </Badge>
+                );
+            },
         },
-    },
-    {
-        id: 'actions',
-        enableHiding: false,
-        cell: ({ row }) => {
-            const user = row.original;
+        {
+            id: 'actions',
+            enableHiding: false,
+            cell: ({ row }) => {
+                const user = row.original;
 
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(user.id)}
-                        >
-                            Copy User ID
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem>View profile</DropdownMenuItem>
-                        <DropdownMenuItem>Edit permissions</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">Deactivate user</DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
+                return (
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel className="text-xs text-slate-300">Actions</DropdownMenuLabel>
+                            {user.status === 'pending' && (
+                                <DropdownMenuItem onClick={() => onReinvite(user.id, user.email)}>
+                                    Re-invite
+                                </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => onDisable(user.id)}
+                            >
+                                Disable User
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                );
+            },
         },
-    },
-];
+    ];
 
 export function UserListTable() {
+    const [data, setData] = React.useState<UserWithRelations[]>(mockUsers);
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
     const [rowSelection, setRowSelection] = React.useState({});
 
+    const handleDisableUser = (id: string) => {
+        setData((prev) => prev.map(u => u.id === id ? { ...u, status: 'inactive' } : u));
+    };
+
+    const handleReinvite = (id: string, email: string) => {
+        // In a real app, this would trigger an API call
+        window.alert(`Invitation resent to ${email}`);
+    };
+
+    const columns = React.useMemo(() => createColumns(handleDisableUser, handleReinvite), []);
+
     const table = useReactTable({
-        data: mockUsers,
+        data,
         columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
@@ -197,7 +214,7 @@ export function UserListTable() {
         <div className="w-full space-y-4">
             <div className="flex items-center justify-between gap-4">
                 <div className="flex items-center flex-1 gap-2 max-w-sm">
-                    <div className="relative max-w-[100px] flex items-center">
+                    <div className="relative max-w-lg flex items-center">
                         <Search className="h-4 w-4 text-muted-foreground absolute top-[0.5rem] left-3" />
                         <Input
                             placeholder="Search users..."

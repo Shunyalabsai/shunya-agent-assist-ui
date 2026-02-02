@@ -85,7 +85,7 @@ export function SuggestedPrompts({
               {categoryPrompts.map((prompt) => (
                 <Button
                   key={prompt.id}
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   className="w-full justify-start text-left h-auto py-2 px-3"
                   onClick={() => onPromptSelect?.(prompt.prompt)}
