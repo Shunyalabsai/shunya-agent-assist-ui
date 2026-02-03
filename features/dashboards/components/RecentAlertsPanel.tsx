@@ -3,10 +3,11 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ROUTES } from '@/constants/routes';
 import { managerSocketClient } from '@/lib/realtime/manager-socket';
-import type { Alert } from '@/types/manager';
-import { cn } from '@/lib/utils';
+import type { Alert as AlertType } from '@/types/manager';
+import { AlertCircle, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 
 function formatRelativeTime(timestamp: number): string {
   const seconds = Math.floor((Date.now() - timestamp) / 1000);
@@ -21,13 +22,13 @@ function formatRelativeTime(timestamp: number): string {
 
 export interface RecentAlertsPanelProps {
   /** Initial alerts (e.g. from REST GET /api/manager/alerts). Real-time alerts append via WebSocket. */
-  initialAlerts?: Alert[];
+  initialAlerts?: AlertType[];
   className?: string;
 }
 
 export function RecentAlertsPanel({ initialAlerts = [], className }: RecentAlertsPanelProps) {
   const router = useRouter();
-  const [alerts, setAlerts] = React.useState<Alert[]>(initialAlerts);
+  const [alerts, setAlerts] = React.useState<AlertType[]>(initialAlerts);
   const [connected, setConnected] = React.useState(false);
 
   React.useEffect(() => {
@@ -50,7 +51,7 @@ export function RecentAlertsPanel({ initialAlerts = [], className }: RecentAlert
     };
   }, []);
 
-  const handleAlertClick = (alert: Alert) => {
+  const handleAlertClick = (alert: AlertType) => {
     if (alert.sessionId) {
       router.push(ROUTES.MANAGER.SESSION_DETAIL(alert.sessionId));
     } else {
@@ -59,6 +60,36 @@ export function RecentAlertsPanel({ initialAlerts = [], className }: RecentAlert
   };
 
   const displayAlerts = alerts.length > 0 ? alerts : initialAlerts;
+
+  const getAlertVariant = (severity: AlertType['severity']) => {
+    switch (severity) {
+      case 'critical':
+        return 'destructive';
+      case 'warning':
+        return 'warning';
+      case 'info':
+        return 'info';
+      case 'success':
+        return 'success';
+      default:
+        return 'default';
+    }
+  };
+
+  const getAlertIcon = (severity: AlertType['severity']) => {
+    switch (severity) {
+      case 'critical':
+        return <AlertCircle className="h-4 w-4" />;
+      case 'warning':
+        return <AlertTriangle className="h-4 w-4" />;
+      case 'info':
+        return <Info className="h-4 w-4" />;
+      case 'success':
+        return <CheckCircle className="h-4 w-4" />;
+      default:
+        return <AlertCircle className="h-4 w-4" />;
+    }
+  };
 
   return (
     <Card className={className}>
@@ -76,34 +107,34 @@ export function RecentAlertsPanel({ initialAlerts = [], className }: RecentAlert
             No recent alerts
           </div>
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {displayAlerts.map((alert) => (
               <li key={alert.id}>
-                <button
-                  type="button"
+                <div
+                  role="button"
+                  tabIndex={0}
                   onClick={() => handleAlertClick(alert)}
-                  className={cn(
-                    'w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-colors hover:bg-muted/50',
-                    'focus:outline-none focus-visible:ring-2 focus-visible:ring-ring'
-                  )}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleAlertClick(alert);
+                    }
+                  }}
+                  className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-lg cursor-pointer"
                 >
-                  <span
-                    className={cn(
-                      'h-2.5 w-2.5 shrink-0 rounded-full',
-                      alert.severity === 'critical'
-                        ? 'bg-red-500'
-                        : 'bg-amber-500'
-                    )}
-                    aria-hidden
-                  />
-                  <div className="flex-1 min-w-0">
-                    <span className="font-medium text-sm">{alert.type}</span>
-                    <span className="text-muted-foreground text-sm"> – {alert.agentName}</span>
-                  </div>
-                  <span className="text-xs text-muted-foreground shrink-0">
-                    {formatRelativeTime(alert.timestamp)}
-                  </span>
-                </button>
+                  <Alert variant={getAlertVariant(alert.severity)}>
+                    {getAlertIcon(alert.severity)}
+                    <AlertTitle className="flex justify-between items-center gap-2">
+                      <span>{alert.type}</span>
+                      <span className="text-xs font-normal opacity-70">
+                        {formatRelativeTime(alert.timestamp)}
+                      </span>
+                    </AlertTitle>
+                    <AlertDescription>
+                      {alert.agentName}
+                    </AlertDescription>
+                  </Alert>
+                </div>
               </li>
             ))}
           </ul>

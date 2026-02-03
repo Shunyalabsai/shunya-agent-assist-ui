@@ -7,7 +7,7 @@ export interface MonitoredCall {
 }
 
 export interface CallMetrics {
-  sentiment?: "positive" | "neutral" | "negative";
+  sentiment?: "positive" | "neutral" | "negative" | "warning";
   intent?: string;
   duration: number;
 }

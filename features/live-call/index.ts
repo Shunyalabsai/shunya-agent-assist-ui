@@ -10,3 +10,4 @@ export * from "./components/UpsellPrompt";
 export * from "./components/AgentChatDock";
 export * from './components/IncomingCallOverlay';
 export * from './components/PostCallScreen';
+export * from './components/CustomerDetailsCard';

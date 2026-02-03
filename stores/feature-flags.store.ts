@@ -11,7 +11,10 @@ interface FeatureFlagsState {
 }
 
 export const useFeatureFlagsStore = create<FeatureFlagsState>((set) => ({
-  flags: {},
+  flags: {
+    upsell_prompts: true,
+    live_sentiment: true,
+  },
   setFlags: (flags) => set({ flags }),
   setFlag: (key, value) =>
     set((state) => ({

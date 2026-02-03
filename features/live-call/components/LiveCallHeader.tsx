@@ -1,24 +1,45 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Clock, User } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
-import { useLiveCallStore } from '@/stores/live-call.store';
-import { cn } from '@/lib/utils';
+import * as React from "react";
+import {
+  Clock,
+  User,
+  Mic,
+  MicOff,
+  PhoneOff,
+  Pause,
+  PhoneForwarded,
+  LifeBuoy,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import { useLiveCallStore } from "@/stores/live-call.store";
+import { cn } from "@/lib/utils";
 
 export interface LiveCallHeaderProps {
   customerId?: string;
   customerName?: string;
   className?: string;
+  onEndCall?: () => void;
 }
 
 export function LiveCallHeader({
   customerId,
   customerName,
   className,
+  onEndCall,
 }: LiveCallHeaderProps) {
   const callData = useLiveCallStore((state) => state.callData);
   const [duration, setDuration] = React.useState(0);
+  const [isMuted, setIsMuted] = React.useState(false);
+  const [isHeld, setIsHeld] = React.useState(false);
 
   React.useEffect(() => {
     if (!callData) return;
@@ -38,44 +59,151 @@ export function LiveCallHeader({
     const secs = seconds % 60;
 
     if (hours > 0) {
-      return `${hours}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+      return `${hours}:${minutes.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
     }
-    return `${minutes}:${secs.toString().padStart(2, '0')}`;
+    return `${minutes}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
-    <Card className={cn('border-primary/20', className)}>
-      <CardContent className="flex items-center justify-between p-4">
-        <div className="flex items-center gap-4">
+    <TooltipProvider>
+      <Card
+        className={cn(
+          "border-primary/20 flex items-center justify-between p-4",
+          className,
+        )}
+      >
+        <div className="flex items-center justify-between gap-6 w-full">
           <div className="flex items-center gap-2">
+            <Badge
+              variant="outline"
+              className=" text-green-100 border-green-400/40 bg-green-400/10"
+            >
+              Active Call
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
             <Clock className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium text-muted-foreground">
-              Duration
-            </span>
-            <span className="text-lg font-semibold">
+            <span className="font-mono font-medium">
               {formatDuration(duration)}
             </span>
           </div>
         </div>
+
         <div className="flex items-center gap-2">
-          <User className="h-4 w-4 text-muted-foreground" />
-          <div className="flex flex-col">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={isMuted ? "destructive" : "secondary"}
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                onClick={() => setIsMuted(!isMuted)}
+              >
+                {isMuted ? (
+                  <MicOff className="h-4 w-4" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{isMuted ? "Unmute" : "Mute"}</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="secondary"
+                size="icon"
+                className={cn(
+                  "h-9 w-9 rounded-full",
+                  isHeld && "bg-amber-100 text-amber-700 hover:bg-amber-200",
+                )}
+                onClick={() => setIsHeld(!isHeld)}
+              >
+                <Pause
+                  className="h-4 w-4"
+                  fill={isHeld ? "currentColor" : "none"}
+                />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{isHeld ? "Resume Call" : "Hold Call"}</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                onClick={() => console.log("Transfer clicked")}
+              >
+                <PhoneForwarded className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Transfer</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                onClick={() => console.log("Help clicked")}
+              >
+                <LifeBuoy className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Ask for Help</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <div className="h-4 w-px bg-border mx-2" />
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="destructive"
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                onClick={onEndCall}
+              >
+                <PhoneOff className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>End Call</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="text-right hidden sm:block">
             {customerName && (
-              <span className="text-sm font-medium">{customerName}</span>
+              <div className="text-sm font-semibold">{customerName}</div>
             )}
             {customerId && (
-              <span className="text-xs text-muted-foreground">
-                ID: {customerId}
-              </span>
+              <div className="text-xs text-muted-foreground font-mono">
+                {customerId}
+              </div>
             )}
             {!customerName && !customerId && (
               <span className="text-sm text-muted-foreground">
-                No customer info
+                Unknown Customer
               </span>
             )}
           </div>
+          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+            <User className="h-4 w-4 text-primary" />
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </Card>
+    </TooltipProvider>
   );
 }

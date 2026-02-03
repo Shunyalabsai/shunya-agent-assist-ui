@@ -1,13 +1,13 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { TrendingUp, X } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { useLiveCallStore } from '@/stores/live-call.store';
-import { useFeature } from '@/hooks/useFeature';
-import { cn } from '@/lib/utils';
+import * as React from "react";
+import { TrendingUp, X } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useLiveCallStore } from "@/stores/live-call.store";
+import { useFeature } from "@/hooks/useFeature";
+import { cn } from "@/lib/utils";
 
 export interface UpsellPromptProps {
   className?: string;
@@ -30,13 +30,15 @@ export function UpsellPrompt({
   onApply,
 }: UpsellPromptProps) {
   const callData = useLiveCallStore((state) => state.callData);
-  const hasUpsell = useFeature('upsell_prompts');
+  const hasUpsell = useFeature("upsell_prompts");
 
   if (!hasUpsell) {
     return null;
   }
 
-  const opportunity = callData?.upsellOpportunity as UpsellOpportunity | undefined;
+  const opportunity = callData?.upsellOpportunity as
+    | UpsellOpportunity
+    | undefined;
 
   if (!opportunity) {
     return null;
@@ -48,57 +50,56 @@ export function UpsellPrompt({
   }
 
   return (
-    <Card className={cn('border-primary/50 bg-primary/5', className)}>
-      <CardHeader className="pb-3">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-sm flex items-center gap-2">
-            <TrendingUp className="h-4 w-4 text-primary" />
+    <Card className={cn("border-primary/50 bg-primary/5 p-4", className)}>
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <TrendingUp className="h-4 w-4 text-primary" />
+          <span className="text-xs font-semibold text-primary uppercase tracking-wider">
             Upsell Opportunity
-          </CardTitle>
-          {onDismiss && (
+          </span>
+        </div>
+        {onDismiss && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 -mr-2 -mt-2"
+            onClick={onDismiss}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <div className="flex items-center justify-between gap-2 mb-1">
+            <h4 className="font-medium text-sm">{opportunity.productName}</h4>
+            <Badge variant="default" className="text-xs shrink-0">
+              {Math.round(opportunity.confidence * 100)}% match
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground line-clamp-2">
+            {opportunity.description}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2 justify-between">
+          {opportunity.estimatedValue && (
+            <Badge variant="secondary" className="text-xs bg-background/50">
+              +${opportunity.estimatedValue}
+            </Badge>
+          )}
+          {onApply && (
             <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={onDismiss}
+              size="sm"
+              className="h-7 text-xs"
+              onClick={() => onApply(opportunity.id)}
             >
-              <X className="h-3 w-3" />
+              Present Offer
             </Button>
           )}
         </div>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        <div className="space-y-2">
-          <div>
-            <h4 className="font-medium text-sm mb-1">{opportunity.productName}</h4>
-            <p className="text-xs text-muted-foreground">
-              {opportunity.description}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="default" className="text-xs">
-              {Math.round(opportunity.confidence * 100)}% match
-            </Badge>
-            {opportunity.estimatedValue && (
-              <Badge variant="secondary" className="text-xs">
-                ${opportunity.estimatedValue}
-              </Badge>
-            )}
-          </div>
-          <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded-md">
-            <strong>Why:</strong> {opportunity.reason}
-          </div>
-        </div>
-        {onApply && (
-          <Button
-            size="sm"
-            className="w-full"
-            onClick={() => onApply(opportunity.id)}
-          >
-            Present Offer
-          </Button>
-        )}
-      </CardContent>
+      </div>
     </Card>
   );
 }

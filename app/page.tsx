@@ -30,7 +30,7 @@ const routeCards = [
     description: "View analytics, monitor performance, and manage sessions",
     href: ROUTES.MANAGER.OVERVIEW,
     icon: LayoutDashboard,
-    isDisabled: true,
+    isDisabled: false,
   },
 ];
 

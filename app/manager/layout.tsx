@@ -7,7 +7,7 @@ export default function ManagerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const sidebarType: AppSidebarType = "all";
+  const sidebarType: AppSidebarType = "manager";
 
   return (
     <SidebarProvider>

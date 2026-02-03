@@ -54,6 +54,7 @@ export default function AgentsPage() {
             value={selectedAgentId}
             onValueChange={setSelectedAgentId}
             placeholder="Select an agent..."
+            className="w-full max-w-lg"
           />
         </CardContent>
       </Card>

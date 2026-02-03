@@ -118,7 +118,7 @@ export interface SessionFilters {
   dateTo?: string;
   agentId?: string;
   intent?: string;
-  sentiment?: 'positive' | 'neutral' | 'negative';
+  sentiment?: 'positive' | 'neutral' | 'negative' | 'warning';
   status?: 'active' | 'completed' | 'cancelled';
   search?: string;
 }
@@ -134,7 +134,7 @@ export interface SessionDetail {
   duration: number;
   status: 'active' | 'completed' | 'cancelled';
   intent?: string;
-  sentiment?: 'positive' | 'neutral' | 'negative';
+  sentiment?: 'positive' | 'neutral' | 'negative' | 'warning';
   summary?: string;
   transcript?: string;
   metadata: {
@@ -151,7 +151,7 @@ export interface SessionDetail {
   };
   sentimentTimeline: {
     timestamp: number;
-    sentiment: 'positive' | 'neutral' | 'negative';
+    sentiment: 'positive' | 'neutral' | 'negative' | 'warning';
     confidence: number;
   }[];
   qaMetrics: {
@@ -187,7 +187,7 @@ export interface SessionDetail {
 /** Recent alert for manager overview (WebSocket alert.* or REST from audit_logs). */
 export interface Alert {
   id: string;
-  severity: 'critical' | 'warning';
+  severity: 'critical' | 'warning' | 'info' | 'success';
   type: string;
   agentName: string;
   agentId?: string;
@@ -205,7 +205,7 @@ export interface LiveCall {
   startTime: string;
   duration: number;
   intent?: string;
-  sentiment?: 'positive' | 'neutral' | 'negative';
+  sentiment?: 'positive' | 'neutral' | 'negative' | 'warning';
   riskFlags: {
     type: 'sentiment' | 'duration' | 'escalation' | 'compliance';
     severity: 'low' | 'medium' | 'high';
