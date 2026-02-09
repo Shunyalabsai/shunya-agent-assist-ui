@@ -1,22 +1,30 @@
-import { ConfigHeader } from '@/components/layout/ConfigHeader';
-import { Button } from '@/components/ui/button';
-import { useDashboardConfig } from '@/stores/use-dashboard-config';
-import { DashboardMetricCard } from '@/features/dashboards/components/dashboard-metric-card';
-import { DashboardChartCard } from '@/features/dashboards/components/dashboard-chart-card';
-import { DashboardTableCard } from '@/features/dashboards/components/dashboard-table-card';
-import { UserListTable } from '@/features/shared/components/user-list-table';
-import { mockMetricsData, mockChartsData, mockTablesData } from '@/features/dashboards/data/mock-dashboard-data';
-import { Settings } from 'lucide-react';
-import Link from 'next/link';
+"use client";
+
+import { ConfigHeader } from "@/components/layout/ConfigHeader";
+import { Button } from "@/components/ui/button";
+import { useDashboardConfig } from "@/stores/use-dashboard-config";
+import { DashboardMetricCard } from "@/features/dashboards/components/dashboard-metric-card";
+import { DashboardChartCard } from "@/features/dashboards/components/dashboard-chart-card";
+import { DashboardTableCard } from "@/features/dashboards/components/dashboard-table-card";
+import { UserListTable } from "@/features/shared/components/user-list-table";
+import {
+  mockMetricsData,
+  mockChartsData,
+  mockTablesData,
+} from "@/features/dashboards/data/mock-dashboard-data";
+import { Settings } from "lucide-react";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const { getEnabledWidgets } = useDashboardConfig();
   const enabledWidgets = getEnabledWidgets();
 
   // Group widgets by type for layout
-  const kpiWidgets = enabledWidgets.filter(w => w.type === 'kpi-card');
-  const chartWidgets = enabledWidgets.filter(w => ['line-chart', 'bar-chart', 'pie-chart'].includes(w.type));
-  const tableWidgets = enabledWidgets.filter(w => w.type === 'data-table');
+  const kpiWidgets = enabledWidgets.filter((w) => w.type === "kpi-card");
+  const chartWidgets = enabledWidgets.filter((w) =>
+    ["line-chart", "bar-chart", "pie-chart"].includes(w.type),
+  );
+  const tableWidgets = enabledWidgets.filter((w) => w.type === "data-table");
 
   return (
     <div className="space-y-6">
@@ -53,7 +61,8 @@ export default function DashboardPage() {
           </div>
           <h3 className="text-lg font-semibold mb-2">No Widgets Selected</h3>
           <p className="text-muted-foreground mb-4 max-w-md">
-            Configure your dashboard by selecting widgets in the configuration page.
+            Configure your dashboard by selecting widgets in the configuration
+            page.
           </p>
           <Link href="/admin/configuration">
             <Button>
@@ -103,7 +112,9 @@ export default function DashboardPage() {
           {/* User List Section */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-xl font-bold tracking-tight">User Overview</h2>
+              <h2 className="text-xl font-bold tracking-tight">
+                User Overview
+              </h2>
             </div>
             <div className="bg-card rounded-lg border p-6">
               <UserListTable />
