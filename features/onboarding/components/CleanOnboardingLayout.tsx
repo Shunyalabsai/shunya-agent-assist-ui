@@ -83,16 +83,16 @@ export function CleanOnboardingLayout({
         </div>
       </main>
 
-      <footer className="p-8 flex items-center justify-center flex-col gap-8 pb-12 w-full">
+      <footer className="p-8 flex items-center justify-center flex-col gap-2 pb-12 w-full">
         {/* Carousel Dots */}
         <div className="flex items-center gap-3">
           {Array.from({ length: totalSteps }).map((_, index) => (
             <motion.div
               key={index}
-              className={`h-2.5 rounded-full transition-all duration-300 ${
+              className={`h-2 rounded-full transition-all duration-300 ${
                 index === currentStep
                   ? "bg-primary w-8"
-                  : "bg-muted-foreground/20 w-2.5 hover:bg-primary/50"
+                  : "bg-muted-foreground/20 w-2 hover:bg-primary/50"
               }`}
               layoutId={`pagination-${index}`}
             />

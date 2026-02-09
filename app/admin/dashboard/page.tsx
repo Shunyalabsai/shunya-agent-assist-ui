@@ -1,5 +1,3 @@
-'use client';
-
 import { ConfigHeader } from '@/components/layout/ConfigHeader';
 import { Button } from '@/components/ui/button';
 import { useDashboardConfig } from '@/stores/use-dashboard-config';
