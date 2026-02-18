@@ -52,10 +52,10 @@ export function ChatInput({
           onKeyDown={handleKeyDown}
           disabled={disabled || isLoading}
           rows={2}
-          className="resize-none pr-12"
+          className="resize-none pr-12 border-none focus-visible:ring-0 focus-visible:ring-offset-0"
         />
         <div className="absolute bottom-2 right-2 text-xs text-muted-foreground">
-          Press Enter to send, Shift+Enter for new line
+          Press Enter to send
         </div>
       </div>
       <Button

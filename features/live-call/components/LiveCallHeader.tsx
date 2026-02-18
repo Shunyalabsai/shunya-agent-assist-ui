@@ -21,6 +21,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useLiveCallStore } from "@/stores/live-call.store";
 import { cn } from "@/lib/utils";
+import { LiveWaveform } from "@/components/ui/live-waveform";
 
 export interface LiveCallHeaderProps {
   className?: string;
@@ -80,6 +81,17 @@ export function LiveCallHeader({ className, onEndCall }: LiveCallHeaderProps) {
             </span>
           </div>
         </div>
+        <LiveWaveform
+          active={false}
+          processing={true}
+          height={20}
+          barWidth={2.5}
+          barGap={1.5}
+          mode="scrolling"
+          fadeEdges={true}
+          barColor="gray"
+          historySize={30}
+        />
 
         <div className="flex items-center gap-2">
           <Tooltip>

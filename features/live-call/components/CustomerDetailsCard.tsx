@@ -1,17 +1,29 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { User, Phone, Calendar, Repeat } from "lucide-react";
 import { useLiveCallStore } from "@/stores/live-call.store";
-
+import { Orb } from "@/components/ui/orb"
 import { cn } from "@/lib/utils";
+import { LiveWaveform } from "@/components/ui/live-waveform";
 
 export interface CustomerDetailsCardProps {
   className?: string;
 }
 
+const ORB_MOUNT_DELAY_MS = 350;
+
+
 export function CustomerDetailsCard({ className }: CustomerDetailsCardProps) {
   const callData = useLiveCallStore((state) => state.callData);
+  const [orbMounted, setOrbMounted] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setOrbMounted(true), ORB_MOUNT_DELAY_MS);
+    return () => clearTimeout(t);
+  }, []);
 
   if (!callData) return null;
 
@@ -22,7 +34,9 @@ export function CustomerDetailsCard({ className }: CustomerDetailsCardProps) {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-              <User className="h-5 w-5 text-primary" />
+              {orbMounted ? (
+                <Orb colors={["#CADCFC", "#A0B9D1"]} agentState="listening" className="w-10 h-10" />
+              ) : null}
             </div>
             <div>
               <h3 className="font-semibold text-lg leading-none">
@@ -39,8 +53,9 @@ export function CustomerDetailsCard({ className }: CustomerDetailsCardProps) {
               Repeat Caller
             </Badge>
           )}
-        </div>
 
+        </div>
+        
         {/* Details Grid */}
         <div className="grid grid-cols-2 gap-4 pt-2 border-t">
           {callData.customerPhone && (
@@ -55,6 +70,7 @@ export function CustomerDetailsCard({ className }: CustomerDetailsCardProps) {
               <span>{callData.customerDOB}</span>
             </div>
           )}
+
         </div>
       </div>
     </Card>

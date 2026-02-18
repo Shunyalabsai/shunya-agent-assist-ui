@@ -20,6 +20,173 @@ import { ChatHistory, ChatInput, ChatMessage } from "@/features/chat-assistant";
 import { Button } from "@/components/ui/button";
 import { PhoneIcon } from "lucide-react";
 
+
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+  ConversationScrollButton,
+} from "@/components/ui/conversation"
+import { Message, MessageContent } from "@/components/ui/message"
+import { Orb } from "@/components/ui/orb"
+import { Response } from "@/components/ui/response"
+import { useEffect, useState } from "react";
+
+const allMessages = [
+  {
+    id: "1",
+    role: "user" as const,
+    parts: [
+      {
+        type: "text",
+        text: "Hey, I need help with my order",
+      },
+    ],
+  },
+  {
+    id: "2",
+    role: "assistant" as const,
+    parts: [
+      {
+        type: "text",
+        tokens: [
+          "Hi!",
+          " I'd",
+          " be",
+          " happy",
+          " to",
+          " help",
+          " you",
+          " with",
+          " your",
+          " order.",
+          " Could",
+          " you",
+          " please",
+          " provide",
+          " your",
+          " order",
+          " number?",
+        ],
+        text: "Hi! I'd be happy to help you with your order. Could you please provide your order number?",
+      },
+    ],
+  },
+  {
+    id: "3",
+    role: "user" as const,
+    parts: [
+      {
+        type: "text",
+        text: "It's ORDER-12345",
+      },
+    ],
+  },
+  {
+    id: "4",
+    role: "assistant" as const,
+    parts: [
+      {
+        type: "text",
+        tokens: [
+          "Thank",
+          " you!",
+          " Let",
+          " me",
+          " pull",
+          " up",
+          " your",
+          " order",
+          " details.",
+          " I",
+          " can",
+          " see",
+          " that",
+          " your",
+          " order",
+          " was",
+          " placed",
+          " on",
+          " March",
+          " 15th",
+          " and",
+          " is",
+          " currently",
+          " being",
+          " processed.",
+          " It",
+          " should",
+          " ship",
+          " within",
+          " the",
+          " next",
+          " 1-2",
+          " business",
+          " days.",
+          " Is",
+          " there",
+          " anything",
+          " specific",
+          " you'd",
+          " like",
+          " to",
+          " know",
+          " about",
+          " this",
+          " order?",
+        ],
+        text: "Thank you! Let me pull up your order details. I can see that your order was placed on March 15th and is currently being processed. It should ship within the next 1-2 business days. Is there anything specific you'd like to know about this order?",
+      },
+    ],
+  },
+  {
+    id: "5",
+    role: "user" as const,
+    parts: [
+      {
+        type: "text",
+        text: "Can I change the shipping address?",
+      },
+    ],
+  },
+  {
+    id: "6",
+    role: "assistant" as const,
+    parts: [
+      {
+        type: "text",
+        tokens: [
+          "Absolutely!",
+          " Since",
+          " the",
+          " order",
+          " hasn't",
+          " shipped",
+          " yet,",
+          " I",
+          " can",
+          " update",
+          " the",
+          " shipping",
+          " address",
+          " for",
+          " you.",
+          " What",
+          " would",
+          " you",
+          " like",
+          " the",
+          " new",
+          " address",
+          " to",
+          " be?",
+        ],
+        text: "Absolutely! Since the order hasn't shipped yet, I can update the shipping address for you. What would you like the new address to be?",
+      },
+    ],
+  },
+]
+
 export default function LiveCallPage() {
   const {
     callData,
@@ -30,8 +197,63 @@ export default function LiveCallPage() {
     endCall,
   } = useLiveCallStore();
 
-  const [messages, setMessages] = React.useState<ChatMessage[]>([]);
+  // const [messages, setMessages] = React.useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = React.useState(false);
+
+
+  ///CHAT CONVERSATION START
+
+  const [messages, setMessages] = useState<typeof allMessages>([])
+  const [streamingMessageIndex, setStreamingMessageIndex] = useState<
+    number | null
+  >(null)
+  const [streamingContent, setStreamingContent] = useState("")
+  useEffect(() => {
+    const timeouts: NodeJS.Timeout[] = []
+    const intervals: NodeJS.Timeout[] = []
+    let currentMessageIndex = 0
+    const addNextMessage = () => {
+      if (currentMessageIndex >= allMessages.length) return
+      const message = allMessages[currentMessageIndex]
+      const part = message.parts[0]
+      if (message.role === "assistant" && "tokens" in part && part.tokens) {
+        setStreamingMessageIndex(currentMessageIndex)
+        setStreamingContent("")
+        let currentContent = ""
+        let tokenIndex = 0
+        const streamInterval = setInterval(() => {
+          if (tokenIndex < part.tokens.length) {
+            currentContent += part.tokens[tokenIndex]
+            setStreamingContent(currentContent)
+            tokenIndex++
+          } else {
+            clearInterval(streamInterval)
+            setMessages((prev) => [...prev, message])
+            setStreamingMessageIndex(null)
+            setStreamingContent("")
+            currentMessageIndex++
+            // Add next message after a delay
+            timeouts.push(setTimeout(addNextMessage, 500))
+          }
+        }, 100)
+        intervals.push(streamInterval)
+      } else {
+        setMessages((prev) => [...prev, message])
+        currentMessageIndex++
+        timeouts.push(setTimeout(addNextMessage, 800))
+      }
+    }
+    // Start after 1 second
+    timeouts.push(setTimeout(addNextMessage, 1000))
+    return () => {
+      timeouts.forEach((timeout) => clearTimeout(timeout))
+      intervals.forEach((interval) => clearInterval(interval))
+    }
+  }, [])
+
+
+
+  ///CHAT CONVERSATION END
 
   const handleSendMessage = async (message: string) => {
     const userMessage: ChatMessage = {
@@ -210,8 +432,8 @@ export default function LiveCallPage() {
           Real-time decision support during active calls
         </p>
       </div>
-      <div className="flex flex-col md:flex-row gap-4 items-stretch md:items-start">
-        <CustomerDetailsCard className=" h-full" />
+      <div className="flex flex-col md:flex-row gap-4 items-stretch">
+        <CustomerDetailsCard className=" h-full min-h-[150px] min-w-[300px]" />
         <LiveCallHeader
           className="w-full md:w-auto rounded-2xl bg-blue-400/10 border-blue-200/20"
           onEndCall={endCall}
@@ -255,15 +477,70 @@ export default function LiveCallPage() {
           </div>
         </div>
         <div className="space-y-6">
-          <Card className="h-[600px] flex flex-col">
+          <Card className="h-[600px] flex flex-col pb-0">
             <CardHeader>
               <CardTitle>Chat</CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-              <div className="flex-1 p-4 h-full  max-h-[calc(60dvh - 128px)] overflow-y-auto">
-                <ChatHistory messages={messages} />
+            <CardContent className="flex-1 flex flex-col p-0 overflow-hidden mb-3 gap-3">
+              <div className="flex-1 px-4 h-full  max-h-[calc(60dvh - 128px)] overflow-y-auto">
+                <div className="flex h-full flex-col">
+                  <Conversation>
+                    <ConversationContent>
+                      {messages.length === 0 && streamingMessageIndex === null ? (
+                        <ConversationEmptyState
+                          icon={<Orb className="size-12" />}
+                          title="Start a conversation"
+                          description="This is a simulated conversation"
+                        />
+                      ) : (
+                        <>
+                          {messages.map((message) => (
+                            <Message from={message.role} key={message.id}>
+                              <MessageContent>
+                                {message.parts.map((part, i) => {
+                                  switch (part.type) {
+                                    case "text":
+                                      return (
+                                        <Response key={`${message.id}-${i}`}>
+                                          {part.text}
+                                        </Response>
+                                      )
+                                    default:
+                                      return null
+                                  }
+                                })}
+                              </MessageContent>
+                              {message.role === "assistant" && (
+                                <div className="ring-border size-8 overflow-hidden rounded-full ring-1">
+                                  <Orb className="h-full w-full" agentState={null} />
+                                </div>
+                              )}
+                            </Message>
+                          ))}
+                          {streamingMessageIndex !== null && (
+                            <Message
+                              from={allMessages[streamingMessageIndex].role}
+                              key={`streaming-${streamingMessageIndex}`}
+                            >
+                              <MessageContent>
+                                <Response>{streamingContent || "\u200B"}</Response>
+                              </MessageContent>
+                              {allMessages[streamingMessageIndex].role ===
+                                "assistant" && (
+                                  <div className="ring-border size-8 overflow-hidden rounded-full ring-1">
+                                    <Orb className="h-full w-full" agentState="talking" />
+                                  </div>
+                                )}
+                            </Message>
+                          )}
+                        </>
+                      )}
+                    </ConversationContent>
+                    <ConversationScrollButton />
+                  </Conversation>
+                </div>
               </div>
-              <div className="border-t p-4">
+              <div className="border rounded-lg p-2 mx-2 focus-within:ring-1 focus-within:ring-offset-1 focus-within:ring-[#bedbff] focus-within:ring-offset-[#bedbff] mb-2">
                 <ChatInput
                   onSendMessage={handleSendMessage}
                   disabled={isLoading}
